@@ -1,16 +1,14 @@
-
 import requests
 
-# Tips: använd sidan nedan för att se vilken data vi får tillbaks och hur apiet fungerar199
-# vi använder oss enbart av /nobelPrizes
-# Dokumentation, hjälp samt verktyg för att testa apiet fins här: https://app.swaggerhub.com/apis/NobelMedia/NobelMasterData/2.1
-
 HELP_STRING = """
-Ange ett år och fält
-Exempelvis 1965 fysik
+1- Ange ett år och fält
+Exempelvis: 1965 fysik
+2- välj 2 om du är osäker
+Q- stäng av
+H- hjälp
 """
 
-category = {"fysik": "phy",
+cat = {"fysik": "phy",
        "kemi": "che",
        "litteratur": "lit",
        "ekonomi": "eco",
@@ -18,49 +16,184 @@ category = {"fysik": "phy",
        "medicin": "med"}
 
 
-
 # TODO 10p programmet skall ge en hjälpsam utskrift istället för en krasch om användaren skriver in fel input
 # TODO 15p om användaren inte anger ett område som exempelvis fysik eller kemi så skall den parametern inte skickas med till apiet och vi får då alla priser det året
 
+def calcMoneyForEachPrize(money: float, prize_cnt: float):
+    average_money = money / prize_cnt
+    res = round(average_money, 3)
+    return res
 
 
+def checkfield(field: str):
+    if field not in cat:
+        return False
+    else:
+        return True
+
+
+# def summa, årtal och fält
+def getInforamationFromServer(year: int, field: str):
+    params = {"nobelPrizeYear": year, "nobelPrizeCategory": cat[field]}
+    res = requests.get("http://api.nobelprize.org/2.1/nobelPrizes", params=params).json()
+    return res
+
+
+# print alla årtal
+def printAllInformationsForYear(year: int):
+    for item in cat:
+        print("*" * 30)
+        print(f"Field is {item}")
+        res = getInforamationFromServer(int(year), item)
+
+        for p in res["nobelPrizes"]:
+            print("----------------------------")
+            peng = p["prizeAmount"]
+            idagpeng = p["prizeAmountAdjusted"]
+            print(f"{p['categoryFullName']['se']} prissumma {peng} SEK")
+            print(f"{p['categoryFullName']['se']} prissumma {idagpeng} SEK")
+            prize_cnt = 0
+
+            for m in p["laureates"]:
+                print("----------------------------")
+                if "knownName" in m:
+                    print(m['knownName']['en'])
+                print(m['motivation']['en'])
+                andel = m['portion']
+                prize_cnt += 1
+
+                printResult(peng, idagpeng, prize_cnt)
+
+
+def printOneFieldForYear(year: int, field: str):
+    res = getInforamationFromServer(int(year), field)
+    for p in res["nobelPrizes"]:
+        print("----------------------------")
+        peng = p["prizeAmount"]
+        idagpeng = p["prizeAmountAdjusted"]
+        print(f"{p['categoryFullName']['se']} prissumma {peng} SEK")
+        prize_cnt = 0
+
+        for m in p["laureates"]:
+            print("----------------------------")
+            if "knownName" in m:
+                print(m['knownName']['en'])
+            print(m['motivation']['en'])
+            andel = m['portion']
+            prize_cnt += 1
+
+        print("*" * 30)
+        money_for_thattime = calcMoneyForEachPrize(peng, prize_cnt)
+        result1 = f'{money_for_thattime:.3f}'
+        print(f"The money of the time for each prizer is {result1}")
+        money_for_now = calcMoneyForEachPrize(idagpeng, prize_cnt)
+        result2 = f'{money_for_now:.3f}'
+        print(f"The Today's value for each prizer is {result2}")
+
+    for item in cat:
+        print("*" * 30)
+        print(f"Field is {item}")
+        res = getInforamationFromServer(int(year), item)
+
+    for p in res["nobelPrizes"]:
+        print("----------------------------")
+        peng = p["prizeAmount"]
+        idagpeng = p["prizeAmountAdjusted"]
+        print(f"{p['categoryFullName']['se']} prissumma {peng} SEK")
+        print(f"{p['categoryFullName']['se']} prissumma {idagpeng} SEK")
+        prize_cnt = 0
+
+        for m in p["laureates"]:
+            print("----------------------------")
+            if "knownName" in m:
+                print(m['knownName']['en'])
+            print(m['motivation']['en'])
+            andel = m['portion']
+            prize_cnt += 1
+
+        print("*" * 30)
+        money_for_thattime = calcMoneyForEachPrize(peng, prize_cnt)
+        result1 = f'{money_for_thattime:.3f}'
+        print(f"The money of the time for each prizer is {result1}")
+        money_for_now = calcMoneyForEachPrize(idagpeng, prize_cnt)
+        result2 = f'{money_for_now:.3f}'
+        print(f"The Today's value for each prizer is {result2}")
+
+
+# print resultat
+
+def printResult(peng: float, idagpeng: float, prize_cnt: int):
+    print("*" * 30)
+    money_for_thattime = calcMoneyForEachPrize(peng, prize_cnt)
+    result1 = f'{money_for_thattime:.3f}'
+    print(f"The money of the time for each prizer is {result1}")
+
+    money_for_now = calcMoneyForEachPrize(idagpeng, prize_cnt)
+    result2 = f'{money_for_now:.3f}'
+    print(f"The Today's value for each prizer is {result2}")
+
+
+def printOneFieldForYear(year: int, field: str):
+    res = getInforamationFromServer(int(year), field)
+
+    for p in res["nobelPrizes"]:
+        print("----------------------------")
+        peng = p["prizeAmount"]
+        idagpeng = p["prizeAmountAdjusted"]
+        print(f"{p['categoryFullName']['se']} prissumma {peng} SEK")
+        prize_cnt = 0
+
+        for m in p["laureates"]:
+            print("----------------------------")
+            if "knownName" in m:
+                print(m['knownName']['en'])
+            print(m['motivation']['en'])
+            andel = m['portion']
+            prize_cnt += 1
+        printResult(peng, idagpeng, prize_cnt)
 
 
 def main():
-
+    print(HELP_STRING)
     while True:
-        print(HELP_STRING)
+
         # TODO 5p Skriv bara ut hjälptexten en gång när programmet startar inte efter varje gång användaren matat in en fråga
         #      Förbättra hjälputskriften så att användaren vet vilka fält, exempelvis kemi som finns att välja på
+        meny_val = input(
+            "Välj ett av fälten \nSkriv enligt hjälprutan (år,fält), hjälp(H) eller avsluta(Q) ").upper().strip()
 
-        # TODO 5p Gör så att det finns ett sätt att avsluta programmet, om användaren skriver Q så skall programmet stängas av
-        #      Beskriv i hjälptexten hur man avslutar programmet
-        # TODO 5p Gör så att hjälptexten skrivs ut om användaren skriver h eller H
-        prompt = input(">")
-        year, field = prompt.split()
-        cat = category[field]
+        if meny_val == "2":
+            print("Fälten")
+            for item in cat:
+                print(item)
+                pass
 
+        if meny_val == '1':
+            field = ""
+            year = ""
+            aaa = input(">")
+            str_list = aaa.split()
+            flag = "All"
+            if (len(str_list) == 1):
+                flag = "All"
+                year = str_list[0]
+            else:
+                flag = "OneField"
+                year, field = aaa.split()
 
-        cat = {"nobelPrizeYear": int(year),"nobelPrizeCategory":cat}
+            if flag == "OneField" and not checkfield(field):
+                print("You should print correct field.\n You can find the fields select 2")
+            else:
+                if (flag == "OneField"):
+                    printOneFieldForYear(int(year), field)
+                else:
+                    printAllInformationsForYear(int(year))
+            if meny_val.upper() == "H":
+                print(HELP_STRING)
 
-        nobel_prizes = requests.get("http://api.nobelprize.org/2.1/nobelPrizes", params=cat).json()
-        # TODO 5p  Lägg till någon typ av avskiljare mellan pristagare, exempelvis --------------------------
-
-        # TODO 20p Skapa en funktion som ger en summering av ett år. Om användaren exempelvis skriver "summering 1965"
-        #   skall programmet skriva ut den totala prissumman det året samt hur många pristagare det var.
-        #   Du skall alltså summera alla priser det året och räkna antalet pristagare.
-        #   Exempel på hur det kan se ut:
-        #   > summering 1965
-        #   År 1965 fick 9 pristagare dela på totalt 1410000 kronor
-        #   Tips: Tänk på alla priser inte delats ut alla år. Ekonomipriset infördes exempelvis 1968
-
-        for prize in nobel_prizes["nobelPrizes"]:
-            price_sum = prize["prizeAmount"]
-            print(f"{prize['categoryFullName']['se']} prissumma {price_sum} SEK")
-
-            for winner in prize["laureates"]:
-                print(winner['knownName']['en'])
-                print(winner['motivation']['en'])
+            if meny_val.upper() == "Q":
+                print("Tack och hejdå!")
+                return
 
 
 if __name__ == '__main__':
