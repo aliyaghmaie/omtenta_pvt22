@@ -1,3 +1,4 @@
+#Ali Yaghmaie
 import requests
 
 HELP_STRING = """
@@ -188,12 +189,12 @@ def main():
                     printOneFieldForYear(int(year), field)
                 else:
                     printAllInformationsForYear(int(year))
-            if meny_val.upper() == "H":
-                print(HELP_STRING)
+        if meny_val.upper() == "H":
+            print(HELP_STRING)
 
-            if meny_val.upper() == "Q":
-                print("Tack och hejdå!")
-                return
+        if meny_val.upper() == "Q":
+            print("Tack och hejdå!")
+            return
 
 
 if __name__ == '__main__':
