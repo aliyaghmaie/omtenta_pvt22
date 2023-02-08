@@ -1,6 +1,7 @@
+
 import requests
 
-# Tips: använd sidan nedan för att se vilken data vi får tillbaks och hur apiet fungerar
+# Tips: använd sidan nedan för att se vilken data vi får tillbaks och hur apiet fungerar199
 # vi använder oss enbart av /nobelPrizes
 # Dokumentation, hjälp samt verktyg för att testa apiet fins här: https://app.swaggerhub.com/apis/NobelMedia/NobelMasterData/2.1
 
@@ -9,7 +10,7 @@ Ange ett år och fält
 Exempelvis 1965 fysik
 """
 
-cat = {"fysik": "phy",
+category = {"fysik": "phy",
        "kemi": "che",
        "litteratur": "lit",
        "ekonomi": "eco",
@@ -35,14 +36,14 @@ def main():
         # TODO 5p Gör så att det finns ett sätt att avsluta programmet, om användaren skriver Q så skall programmet stängas av
         #      Beskriv i hjälptexten hur man avslutar programmet
         # TODO 5p Gör så att hjälptexten skrivs ut om användaren skriver h eller H
-        aaa = input(">")
-        a, b = aaa.split()
-        c = cat[b]
+        prompt = input(">")
+        year, field = prompt.split()
+        cat = category[field]
 
 
-        c = {"nobelPrizeYear": int(a),"nobelPrizeCategory":c}
+        cat = {"nobelPrizeYear": int(year),"nobelPrizeCategory":cat}
 
-        res = requests.get("http://api.nobelprize.org/2.1/nobelPrizes", params=c).json()
+        nobel_prizes = requests.get("http://api.nobelprize.org/2.1/nobelPrizes", params=cat).json()
         # TODO 5p  Lägg till någon typ av avskiljare mellan pristagare, exempelvis --------------------------
 
         # TODO 20p Skapa en funktion som ger en summering av ett år. Om användaren exempelvis skriver "summering 1965"
@@ -53,13 +54,13 @@ def main():
         #   År 1965 fick 9 pristagare dela på totalt 1410000 kronor
         #   Tips: Tänk på alla priser inte delats ut alla år. Ekonomipriset infördes exempelvis 1968
 
-        for p in res["nobelPrizes"]:
-            peng = p["prizeAmount"]
-            print(f"{p['categoryFullName']['se']} prissumma {peng} SEK")
+        for prize in nobel_prizes["nobelPrizes"]:
+            price_sum = prize["prizeAmount"]
+            print(f"{prize['categoryFullName']['se']} prissumma {price_sum} SEK")
 
-            for m in p["laureates"]:
-                print(m['knownName']['en'])
-                print(m['motivation']['en'])
+            for winner in prize["laureates"]:
+                print(winner['knownName']['en'])
+                print(winner['motivation']['en'])
 
 
 if __name__ == '__main__':
